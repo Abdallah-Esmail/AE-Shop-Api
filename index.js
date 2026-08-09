@@ -2,8 +2,6 @@ import express from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
 import qs from "qs";
-import path from "path";
-import { fileURLToPath } from "url";
 
 import dbConnection from "./config/database.js";
 import categoryRoute from "./routes/category.route.js";
@@ -26,15 +24,15 @@ const app = express();
 // connect with db
 dbConnection();
 
-// Middlewares
-app.use(express.json({ limit: "20kb" }));
-
 // Webhook
 app.post(
   "/webhook-checkout",
   express.raw({ type: "application/json" }),
   orderController.webhookCheckout,
 );
+
+// Middlewares
+app.use(express.json({ limit: "20kb" }));
 
 if (process.env.NODE_ENV == "development") {
   app.use(morgan("dev"));

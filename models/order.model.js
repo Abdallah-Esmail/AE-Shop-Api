@@ -42,11 +42,16 @@ const orderSchema = new mongoose.Schema(
       enum: ["card", "cash"],
       default: "cash",
     },
+    paidAt: Date,
+    isRefunded: { type: Boolean, default: false },
+    paymentIntentId: {
+      type: String,
+    },
     isPaid: {
       type: Boolean,
       default: false,
     },
-    paidAt: Date,
+    refundedAt: Date,
     status: {
       type: String,
       enum: ["pending", "shipped", "delivered"],

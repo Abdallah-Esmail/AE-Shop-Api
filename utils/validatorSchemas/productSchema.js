@@ -3,7 +3,6 @@ import validatorMiddleware from "../../middlewares/validationMiddleware.js";
 import slugify from "slugify";
 
 import categoryModel from "../../models/category.model.js";
-import subcategoryModel from "../../models/subCategory.model.js";
 
 export const getProductValidator = [
   check("id").isMongoId().withMessage("Invalid product id format"),
@@ -77,30 +76,6 @@ export const createProductValidator = [
       const category = await categoryModel.findById(categoryId);
       if (!category) {
         throw new Error(`No category found with this id: ${categoryId}`);
-      }
-    }),
-
-  check("subcategories")
-    .optional()
-    .isArray()
-    .custom(async (subIds) => {
-      const subcategories = await subcategoryModel.find({
-        _id: { $in: subIds },
-      });
-      if (subcategories.length !== subIds.length) {
-        throw new Error(`invalid subcategories Ids ${subIds}`);
-      }
-    })
-    .custom(async (subIds, { req }) => {
-      const subcategories = await subcategoryModel.find({
-        category: req.body.category,
-      });
-      const subcategoryIdsInDB = [];
-      subcategories.forEach((subCategory) => {
-        subcategoryIdsInDB.push(subCategory._id.toString());
-      });
-      if (!subIds.every((subId) => subcategoryIdsInDB.includes(subId))) {
-        throw new Error(`Subcategories is not belong to the category`);
       }
     }),
 

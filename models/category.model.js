@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import subCategoryModel from "../models/subCategory.model.js";
 import productModel from "../models/product.model.js";
 const categorySchema = new mongoose.Schema(
   {
@@ -21,7 +20,6 @@ const categorySchema = new mongoose.Schema(
 categorySchema.pre(["findOneAndDelete", "deleteOne"], async function () {
   const categoryId = this.getQuery()._id;
   await productModel.deleteMany({ category: categoryId });
-  await subCategoryModel.deleteMany({ category: categoryId });
 });
 
 export default mongoose.model("Category", categorySchema);

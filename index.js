@@ -7,7 +7,6 @@ import { fileURLToPath } from "url";
 
 import dbConnection from "./config/database.js";
 import categoryRoute from "./routes/category.route.js";
-import subCategoriesRoute from "./routes/subCategory.route.js";
 import brandRoute from "./routes/brand.route.js";
 import productRoute from "./routes/product.route.js";
 import cartRoute from "./routes/cart.route.js";
@@ -51,7 +50,6 @@ app.set("query parser", (str) => qs.parse(str));
 
 // Mount Routes
 app.use("/api/v1/categories", categoryRoute);
-app.use("/api/v1/subcategories", subCategoriesRoute);
 app.use("/api/v1/brands", brandRoute);
 app.use("/api/v1/products", productRoute);
 app.use("/api/v1/users", userRoute);

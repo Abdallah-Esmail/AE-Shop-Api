@@ -7,11 +7,8 @@ import {
 } from "../utils/validatorSchemas/categorySchema.js";
 import * as categoryController from "../controllers/category.controller.js";
 import * as authController from "../controllers/auth.controller.js";
-import subCategoriesRoute from "../routes/subCategory.route.js";
 
 const router = express.Router();
-
-router.use("/:categoryId/subcategories", subCategoriesRoute);
 
 router
   .route("/")

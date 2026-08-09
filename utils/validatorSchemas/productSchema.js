@@ -42,13 +42,16 @@ export const createProductValidator = [
   check("price")
     .notEmpty()
     .withMessage("Product price is required")
-    .isNumeric()
-    .withMessage("Product price must be a number"),
-  check("priceAfterDiscount")
-    .optional()
-    .toFloat()
+    .trim()
     .isNumeric()
     .withMessage("Product price must be a number")
+    .toFloat(),
+  check("priceAfterDiscount")
+    .optional()
+    .trim()
+    .isNumeric()
+    .withMessage("Product price must be a number")
+    .toFloat()
     .custom((value, { req }) => {
       if (req.body.price && req.body.price <= value) {
         throw new Error("priceAfterDiscount must be less than price");
@@ -83,8 +86,10 @@ export const createProductValidator = [
 
   check("ratingsAverage")
     .optional()
+    .trim()
     .isNumeric()
     .withMessage("ratingsAverage must be a number")
+    .toFloat()
     .isFloat({ min: 1 })
     .withMessage("Rating must be above or equal 1.0")
     .isFloat({ max: 5 })
@@ -114,9 +119,10 @@ export const updateProductValidator = [
     }),
   check("priceAfterDiscount")
     .optional()
-    .toFloat()
+    .trim()
     .isNumeric()
     .withMessage("Product price must be a number")
+    .toFloat()
     .custom((value, { req }) => {
       if (req.body.price && req.body.price <= value) {
         throw new Error("priceAfterDiscount must be less than price");

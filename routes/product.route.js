@@ -20,9 +20,9 @@ router
   .post(
     authController.protect,
     authController.allowedTo("admin", "manager"),
-    createProductValidator,
     productController.uploadProductImages,
     productController.resizeProductImages,
+    createProductValidator,
     productController.createProduct,
   );
 
@@ -32,9 +32,9 @@ router
   .put(
     authController.protect,
     authController.allowedTo("admin", "manager"),
-    updateProductValidator,
     productController.uploadProductImages,
     productController.resizeProductImages,
+    updateProductValidator,
     productController.updateProduct,
   )
   .delete(

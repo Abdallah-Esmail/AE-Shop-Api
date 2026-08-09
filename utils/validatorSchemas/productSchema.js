@@ -13,6 +13,7 @@ export const createProductValidator = [
   check("title")
     .notEmpty()
     .withMessage("Product title is required")
+    .bail()
     .isString()
     .withMessage("Title must be string")
     .isLength({ min: 3 })
@@ -23,29 +24,41 @@ export const createProductValidator = [
       req.body.slug = slugify(val);
       return true;
     }),
+
   check("description")
     .notEmpty()
     .withMessage("Product description is required")
+    .bail()
     .isLength({ min: 20 })
     .withMessage("Too short product description")
     .isLength({ max: 2000 })
     .withMessage("Too long product description"),
+
   check("quantity")
     .notEmpty()
     .withMessage("Product quantity is required")
+    .bail()
+    .trim()
     .isNumeric()
-    .withMessage("Product quantity must be a number"),
+    .withMessage("Product quantity must be a number")
+    .toInt(),
+
   check("sold")
     .optional()
+    .trim()
     .isNumeric()
-    .withMessage("Product price must be a number"),
+    .withMessage("Product sold must be a number")
+    .toInt(),
+
   check("price")
     .notEmpty()
     .withMessage("Product price is required")
+    .bail()
     .trim()
     .isNumeric()
     .withMessage("Product price must be a number")
     .toFloat(),
+
   check("priceAfterDiscount")
     .optional()
     .trim()
@@ -58,6 +71,7 @@ export const createProductValidator = [
       }
       return true;
     }),
+
   check("colors")
     .optional()
     .isArray()
@@ -72,9 +86,11 @@ export const createProductValidator = [
 
   check("category")
     .notEmpty()
-    .withMessage("Product must be belong to a category")
+    .withMessage("Product must belong to a category")
+    .bail()
     .isMongoId()
-    .withMessage("Invalid ID formate")
+    .withMessage("Invalid ID format")
+    .bail() // 👈 حماية السيرفر من Mongoose CastError
     .custom(async (categoryId) => {
       const category = await categoryModel.findById(categoryId);
       if (!category) {
@@ -82,7 +98,7 @@ export const createProductValidator = [
       }
     }),
 
-  check("brand").optional().isMongoId().withMessage("Invalid ID formate"),
+  check("brand").optional().isMongoId().withMessage("Invalid ID format"),
 
   check("ratingsAverage")
     .optional()
@@ -90,33 +106,40 @@ export const createProductValidator = [
     .isNumeric()
     .withMessage("ratingsAverage must be a number")
     .toFloat()
-    .isFloat({ min: 1 })
-    .withMessage("Rating must be above or equal 1.0")
-    .isFloat({ max: 5 })
-    .withMessage("Rating must be below or equal 5.0"),
+    .isFloat({ min: 1, max: 5 })
+    .withMessage("Rating must be between 1.0 and 5.0"),
+
   check("ratingsQuantity")
     .optional()
+    .trim()
     .isNumeric()
-    .withMessage("ratingsQuantity must be a number"),
+    .withMessage("ratingsQuantity must be a number")
+    .toInt(),
+
   validatorMiddleware,
 ];
 
 export const updateProductValidator = [
   check("id")
-    .isMongoId()
-    .withMessage("Invalid product id format")
     .notEmpty()
-    .withMessage("Product id is required"),
+    .withMessage("Product id is required")
+    .bail()
+    .isMongoId()
+    .withMessage("Invalid product id format"),
+
   check("category")
     .optional()
+    .bail()
     .isMongoId()
-    .withMessage("Invalid ID formate")
+    .withMessage("Invalid ID format")
+    .bail() // 👈 حماية السيرفر من Mongoose CastError
     .custom(async (categoryId) => {
       const category = await categoryModel.findById(categoryId);
       if (!category) {
         throw new Error(`No category found with this id: ${categoryId}`);
       }
     }),
+
   check("priceAfterDiscount")
     .optional()
     .trim()
@@ -129,6 +152,7 @@ export const updateProductValidator = [
       }
       return true;
     }),
+
   body("title")
     .optional()
     .isString()
@@ -137,6 +161,7 @@ export const updateProductValidator = [
       req.body.slug = slugify(val);
       return true;
     }),
+
   validatorMiddleware,
 ];
 

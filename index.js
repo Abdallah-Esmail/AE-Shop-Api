@@ -20,9 +20,6 @@ import * as orderController from "./controllers/order.controller.js";
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 // Express app
 const app = express();
 
@@ -31,7 +28,6 @@ dbConnection();
 
 // Middlewares
 app.use(express.json({ limit: "20kb" }));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Webhook
 app.post(

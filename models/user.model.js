@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
     phone: String,
     profileImg: {
       type: String,
-      default: "/uploads/users/profile.png",
+      default: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
     },
     password: {
       type: String,

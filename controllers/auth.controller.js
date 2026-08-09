@@ -16,7 +16,7 @@ const signup = asyncWrapper(async (req, res, next) => {
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
-    profileImg: "/uploads/profile.png",
+    profileImg: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
   });
 
   const token = createToken(user._id);

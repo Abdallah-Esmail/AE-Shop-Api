@@ -38,20 +38,25 @@ const safeDestroy = async (publicId) => {
 // Image processing
 const resizeImage = asyncWrapper(async (req, res, next) => {
   if (req.file) {
+    const filename = `category-${crypto.randomUUID()}-${Date.now()}.jpeg`;
     const processedBuffer = await sharp(req.file.buffer)
-      .resize(600, 600)
-      .toFormat("jpeg")
-      .jpeg({ quality: 95 })
+      .resize(600, 600, {
+        fit: "cover",
+        background: "#ffffff",
+        withoutEnlargement: true,
+      })
+      .flatten({ background: "#ffffff" })
+      .jpeg({ quality: 90 })
       .toBuffer();
 
     try {
       const base64Image = `data:image/jpeg;base64,${processedBuffer.toString("base64")}`;
 
       const result = await cloudinary.uploader.upload(base64Image, {
-        folder: "users",
+        folder: "categories",
       });
 
-      req.body.profileImg = result.secure_url;
+      req.body.image = result.secure_url;
     } catch (error) {
       return next(
         new appError("Image upload failed", 500, httpStatusText.FAIL),

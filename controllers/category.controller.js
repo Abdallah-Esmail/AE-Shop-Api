@@ -14,9 +14,13 @@ const resizeImage = asyncWrapper(async (req, res, next) => {
   if (req.file) {
     const filename = `category-${crypto.randomUUID()}-${Date.now()}.jpeg`;
     const processedBuffer = await sharp(req.file.buffer)
-      .resize(600, 600)
-      .toFormat("jpeg")
-      .jpeg({ quality: 95 })
+      .resize(600, 600, {
+        fit: "cover",
+        background: "#ffffff",
+        withoutEnlargement: true,
+      })
+      .flatten({ background: "#ffffff" })
+      .jpeg({ quality: 90 })
       .toBuffer();
 
     try {

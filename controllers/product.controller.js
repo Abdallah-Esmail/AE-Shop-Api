@@ -15,9 +15,13 @@ const uploadProductImages = uploadMixOfImages([
 // Helper: process buffer with sharp then upload to Cloudinary
 const processAndUpload = async (buffer, folder) => {
   const processedBuffer = await sharp(buffer)
-    .resize(2000, 1333)
-    .toFormat("jpeg")
-    .jpeg({ quality: 95 })
+    .resize(1000, 1000, {
+      fit: "cover",
+      background: "#ffffff",
+      withoutEnlargement: true,
+    })
+    .flatten({ background: "#ffffff" })
+    .jpeg({ quality: 90 })
     .toBuffer();
 
   const base64Image = `data:image/jpeg;base64,${processedBuffer.toString("base64")}`;

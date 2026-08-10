@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
 import qs from "qs";
+import cors from "cors";
 
 import dbConnection from "./config/database.js";
 import categoryRoute from "./routes/category.route.js";
@@ -23,6 +24,14 @@ const app = express();
 
 // connect with db
 dbConnection();
+
+// Cors
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://e-shop-zeta-two.vercel.app"],
+    credentials: true,
+  }),
+);
 
 // Webhook
 app.post(

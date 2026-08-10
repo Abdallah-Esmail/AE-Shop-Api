@@ -5,6 +5,7 @@ const productSchema = new mongoose.Schema(
     title: {
       type: String,
       required: [true, "Title is required"],
+      unique: true,
       trim: true,
       minlength: [3, "Too short product title"],
       maxlength: [100, "Too long product title"],
@@ -61,7 +62,7 @@ const productSchema = new mongoose.Schema(
     },
     brand: {
       type: mongoose.Schema.ObjectId,
-      ref: "brand",
+      ref: "Brand",
     },
     ratingsAverage: {
       type: Number,

@@ -23,12 +23,7 @@ router
   );
 router
   .route("/:id")
-  .get(
-    authController.protect,
-    authController.allowedTo("admin", "manager"),
-    getCategoryValidator,
-    categoryController.getCategory,
-  )
+  .get(getCategoryValidator, categoryController.getCategory)
   .put(
     authController.protect,
     authController.allowedTo("admin", "manager"),

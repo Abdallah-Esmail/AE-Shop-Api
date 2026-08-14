@@ -52,7 +52,19 @@ const protect = asyncWrapper(async (req, res, next) => {
     );
     return next(err);
   }
-  const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+  } catch (jwtErr) {
+    return next(
+      new appError(
+        "Invalid or expired token, please log in again",
+        401,
+        httpStatusText.FAIL,
+      ),
+    );
+  }
   const currentUser = await userModel.findById(decoded.userId);
   if (!currentUser) {
     const err = new appError(

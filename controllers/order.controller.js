@@ -137,7 +137,7 @@ const modifyCardOrder = async (event) => {
         return;
       }
 
-      // Check if the request is dubblicated
+      // Check if the request is duplicated
       const existingOrder = await orderModel.findById(orderId);
       if (!existingOrder) return;
       if (existingOrder.isPaid) return;
@@ -178,7 +178,7 @@ const modifyCardOrder = async (event) => {
         console.error("Order not found for this refund!");
         return;
       }
-      // Check if the request is dubblicated
+      // Check if the request is duplicated
       if (order.isRefunded) return;
 
       // Modify order

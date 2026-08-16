@@ -1,4 +1,5 @@
 import productModel from "../models/product.model.js";
+import cartModel from "../models/cart.model.js";
 import factoryHandler from "./handlersFactory.controller.js";
 import asyncWrapper from "../middlewares/asyncWrapper.js";
 import { uploadMixOfImages } from "../middlewares/uploadImage.js";
@@ -61,10 +62,10 @@ const resizeProductImages = asyncWrapper(async (req, res, next) => {
 
 const extractPublicId = (url) => {
   if (!url) return null;
-  const parts = url.split("/");
-  const fileName = parts[parts.length - 1].split(".")[0];
-  const folder = parts[parts.length - 2];
-  return `${folder}/${fileName}`;
+  const parts = url.split("/upload/")[1];
+  if (!parts) return null;
+
+  return parts.replace(/^v\d+\//, "").replace(/\.[^/.]+$/, "");
 };
 
 const safeDestroy = async (publicId) => {
@@ -90,6 +91,22 @@ const updateProduct = asyncWrapper(async (req, res, next) => {
     return next(new appError("Document not found", 404, httpStatusText.FAIL));
   }
 
+  let document;
+  try {
+    document = await productModel.findByIdAndUpdate(id, req.body, {
+      returnDocument: "after",
+      runValidators: true,
+    });
+  } catch (err) {
+    if (req.body.imageCover)
+      await safeDestroy(extractPublicId(req.body.imageCover));
+    if (req.body.images) {
+      await Promise.all(
+        req.body.images.map((url) => safeDestroy(extractPublicId(url))),
+      );
+    }
+    return next(new appError(err.message, 400, httpStatusText.FAIL));
+  }
   if (req.body.imageCover && oldProduct.imageCover) {
     const oldPublicId = extractPublicId(oldProduct.imageCover);
     await safeDestroy(oldPublicId);
@@ -100,11 +117,6 @@ const updateProduct = asyncWrapper(async (req, res, next) => {
       oldProduct.images.map((oldUrl) => safeDestroy(extractPublicId(oldUrl))),
     );
   }
-
-  const document = await productModel.findByIdAndUpdate(id, req.body, {
-    returnDocument: "after",
-    runValidators: true,
-  });
 
   return res.status(200).json({
     status: httpStatusText.SUCCESS,
@@ -120,6 +132,8 @@ const deleteProduct = asyncWrapper(async (req, res, next) => {
     return next(new appError("Document not found", 404, httpStatusText.FAIL));
   }
 
+  await productModel.findByIdAndDelete(id);
+
   if (product.imageCover) {
     await safeDestroy(extractPublicId(product.imageCover));
   }
@@ -130,7 +144,10 @@ const deleteProduct = asyncWrapper(async (req, res, next) => {
     );
   }
 
-  await productModel.findByIdAndDelete(id);
+  await cartModel.updateMany(
+    { "cartItems.product": id },
+    { $pull: { cartItems: { product: id } } },
+  );
 
   res.status(204).send();
 });

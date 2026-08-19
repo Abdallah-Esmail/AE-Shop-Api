@@ -14,6 +14,7 @@ const signup = asyncWrapper(async (req, res, next) => {
   // Create user
   const user = await userModel.create({
     name: req.body.name,
+    slug: req.body.slug,
     email: req.body.email,
     password: req.body.password,
     profileImg: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
@@ -24,14 +25,25 @@ const signup = asyncWrapper(async (req, res, next) => {
 });
 
 const login = asyncWrapper(async (req, res, next) => {
-  const user = await userModel.findOne({
-    email: req.body.email,
-  });
+  const user = await userModel
+    .findOne({
+      email: req.body.email,
+    })
+    .select("+password");
   if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
     return next(
       new appError("Incorrect email or password", 401, httpStatusText.FAIL),
     );
   }
+  if (!user.active)
+    return next(
+      new appError(
+        "Your account has been deactivated",
+        401,
+        httpStatusText.FAIL,
+      ),
+    );
+
   const token = createToken(user._id);
   res.status(200).json({ data: user, token });
 });
@@ -48,7 +60,7 @@ const protect = asyncWrapper(async (req, res, next) => {
     const err = new appError(
       "You have not logged in, please login to get access this resource",
       401,
-      httpStatusText.ERROR,
+      httpStatusText.FAIL,
     );
     return next(err);
   }
@@ -70,7 +82,7 @@ const protect = asyncWrapper(async (req, res, next) => {
     const err = new appError(
       "The user that belong to this token does no longer exists",
       401,
-      httpStatusText.ERROR,
+      httpStatusText.FAIL,
     );
     return next(err);
   }
@@ -78,7 +90,7 @@ const protect = asyncWrapper(async (req, res, next) => {
     const err = new appError(
       "This account is inactive",
       401,
-      httpStatusText.ERROR,
+      httpStatusText.FAIL,
     );
     return next(err);
   }
@@ -92,7 +104,7 @@ const protect = asyncWrapper(async (req, res, next) => {
       const err = new appError(
         "This user has changed his password recently, please login again...",
         401,
-        httpStatusText.ERROR,
+        httpStatusText.FAIL,
       );
       return next(err);
     }
@@ -107,7 +119,7 @@ const allowedTo = (...roles) => {
       const err = new appError(
         "You are not allowed to access this route",
         403,
-        httpStatusText.ERROR,
+        httpStatusText.FAIL,
       );
       return next(err);
     }
@@ -119,8 +131,8 @@ const forgetPassword = asyncWrapper(async (req, res, next) => {
   const user = await userModel.findOne({ email: req.body.email });
   if (!user) {
     return res.status(200).json({
-      status: "Success",
-      message: "If this email exists, a reset code has been sent",
+      status: httpStatusText.SUCCESS,
+      message: "If user exists reset code has sent to email",
     });
   }
 
@@ -156,9 +168,10 @@ const forgetPassword = asyncWrapper(async (req, res, next) => {
       ),
     );
   }
-  res
-    .status(200)
-    .json({ status: "Success", message: "Reset code has sent to email" });
+  res.status(200).json({
+    status: httpStatusText.SUCCESS,
+    message: "If user exists reset code has sent to email",
+  });
 });
 
 const verifyPasswordResetCode = asyncWrapper(async (req, res, next) => {
@@ -174,34 +187,50 @@ const verifyPasswordResetCode = asyncWrapper(async (req, res, next) => {
     const err = new appError(
       "Reset code is invalid or expired",
       404,
-      httpStatusText.ERROR,
+      httpStatusText.FAIL,
     );
     return next(err);
   }
   user.passwordResetVerified = true;
   await user.save();
-  res.status(200).json({ status: "success" });
+  res.status(200).json({ status: httpStatusText.SUCCESS });
 });
 
 const resetPassword = asyncWrapper(async (req, res, next) => {
   const user = await userModel.findOne({ email: req.body.email });
   if (!user) {
     const err = new appError(
-      "There is no user with this email",
-      404,
-      httpStatusText.ERROR,
+      "Invalid request or expired code",
+      400,
+      httpStatusText.FAIL,
     );
     return next(err);
   }
+
+  if (
+    !user ||
+    !user.passwordResetVerified ||
+    !user.passwordResetExpires ||
+    user.passwordResetExpires < Date.now()
+  ) {
+    const err = new appError(
+      "Invalid request or expired code",
+      400,
+      httpStatusText.FAIL,
+    );
+    return next(err);
+  }
+
   if (!user.passwordResetVerified) {
     const err = new appError(
-      "Reset code is not verified",
+      "Invalid request or expired code",
       400,
-      httpStatusText.ERROR,
+      httpStatusText.FAIL,
     );
     return next(err);
   }
   user.password = req.body.newPassword;
+  user.passwordChangedAt = Date.now();
   user.passwordResetCode = undefined;
   user.passwordResetExpires = undefined;
   user.passwordResetVerified = undefined;

@@ -21,6 +21,7 @@ export const signupValidator = [
     .withMessage("Email is required")
     .isEmail()
     .withMessage("Invalid email address")
+    .normalizeEmail()
     .custom(async (val) => {
       const user = await userModel.findOne({ email: val });
       if (user) {
@@ -33,7 +34,7 @@ export const signupValidator = [
     .withMessage("Password is required")
     .isLength({ min: 6, max: 32 })
     .withMessage("The password must be between 6 and 32 chars")
-    .matches(/^\S*$/)
+    .matches(/^\S+$/)
     .withMessage("Password must not contain spaces"),
   check("passwordConfirmation")
     .notEmpty()
@@ -52,11 +53,44 @@ export const loginValidator = [
     .notEmpty()
     .withMessage("Email is required")
     .isEmail()
-    .withMessage("Invalid email address"),
-  check("password")
+    .withMessage("Invalid email address")
+    .normalizeEmail(),
+  check("password").notEmpty().withMessage("Password is required"),
+  validatorMiddleware,
+];
+
+export const forgetPasswordValidator = [
+  check("email")
     .notEmpty()
-    .withMessage("Password is required")
-    .matches(/^\S*$/)
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email address")
+    .normalizeEmail(),
+  validatorMiddleware,
+];
+
+export const verifyPasswordResetCodeValidator = [
+  check("resetCode")
+    .notEmpty()
+    .withMessage("Reset code is required")
+    .isLength({ min: 6, max: 6 })
+    .withMessage("Reset code must be 6 characters"),
+  validatorMiddleware,
+];
+
+export const resetPasswordValidator = [
+  check("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email address")
+    .normalizeEmail(),
+  check("newPassword")
+    .notEmpty()
+    .withMessage("New password is required")
+    .isLength({ min: 6, max: 32 })
+    .withMessage("The password must be between 6 and 32 chars")
+    .matches(/^\S+$/)
     .withMessage("Password must not contain spaces"),
   validatorMiddleware,
 ];

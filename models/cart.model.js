@@ -16,10 +16,10 @@ const cartSchema = new mongoose.Schema(
         price: Number,
       },
     ],
-    totalCartPrice: Number,
     user: {
       type: mongoose.Schema.ObjectId,
       ref: "User",
+      required: true,
     },
   },
   { timestamps: true },

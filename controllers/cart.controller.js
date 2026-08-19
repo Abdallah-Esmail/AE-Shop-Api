@@ -8,9 +8,9 @@ import httpStatusText from "../utils/httpStatusText.js";
 const calcTotalCartPrice = (cart) => {
   let totalPrice = 0;
   cart.cartItems.forEach((item) => {
-    totalPrice += item.quantity * item.price;
+    totalPrice = totalPrice + item.quantity * item.price;
   });
-  return totalPrice;
+  return Math.round(totalPrice * 100) / 100;
 };
 
 const getLoggedUserCart = asyncWrapper(async (req, res, next) => {
@@ -27,10 +27,11 @@ const getLoggedUserCart = asyncWrapper(async (req, res, next) => {
       data: { cartItems: [], totalCartPrice: 0 },
     });
   }
+  const totalCartPrice = calcTotalCartPrice(cart);
   res.status(200).json({
     status: "success",
     numOfCartItems: cart.cartItems.length,
-    data: cart,
+    data: { ...cart._doc, totalCartPrice: totalCartPrice },
   });
 });
 
@@ -85,13 +86,13 @@ const addToCart = asyncWrapper(async (req, res, next) => {
     }
   }
   // Calculate total cart price
-  cart.totalCartPrice = calcTotalCartPrice(cart);
   await cart.save();
+  const totalCartPrice = calcTotalCartPrice(cart);
   res.status(200).json({
     status: "success",
     message: "Product added to cart successfully",
     numOfCartItems: cart.cartItems.length,
-    data: cart,
+    data: { ...cart._doc, totalCartPrice: totalCartPrice },
   });
 });
 
@@ -113,13 +114,12 @@ const removeSpecificCartItem = asyncWrapper(async (req, res, next) => {
     );
     return next(error);
   }
-  cart.totalCartPrice = calcTotalCartPrice(cart);
-  await cart.save();
+  const totalCartPrice = calcTotalCartPrice(cart);
   res.status(200).json({
     status: "success",
     message: "Item removed successfully",
     numOfCartItems: cart.cartItems.length,
-    data: cart,
+    data: { ...cart._doc, totalCartPrice: totalCartPrice },
   });
 });
 
@@ -151,13 +151,13 @@ const updateCartItemQuantity = asyncWrapper(async (req, res, next) => {
     );
   }
 
-  cart.totalCartPrice = calcTotalCartPrice(cart);
   await cart.save();
+  const totalCartPrice = calcTotalCartPrice(cart);
   res.status(200).json({
     status: "success",
     message: "Quantity updated successfully",
     numOfCartItems: cart.cartItems.length,
-    data: cart,
+    data: { ...cart._doc, totalCartPrice: totalCartPrice },
   });
 });
 

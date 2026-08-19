@@ -7,6 +7,7 @@ import {
   changeUserPasswordValidator,
   deactivateUserValidator,
   updateLoggedUserValidator,
+  updateUserRoleValidator,
 } from "../utils/validatorSchemas/userSchema.js";
 import * as userController from "../controllers/user.controller.js";
 import * as authController from "../controllers/auth.controller.js";
@@ -16,11 +17,13 @@ const router = express.Router();
 router.use(authController.protect);
 
 router.get("/getMe", userController.getLoggedUserData, userController.getUser);
+
 router.put(
   "/changeMyPassword",
   changeUserPasswordValidator,
   userController.updateLoggedUserPassword,
 );
+
 router.put(
   "/updateMe",
   userController.uploadUserImage,
@@ -28,15 +31,17 @@ router.put(
   updateLoggedUserValidator,
   userController.updateLoggedUserData,
 );
+
 router.delete("/deleteMe", userController.deleteLoggedUser);
 
-router.use(authController.allowedTo("admin", "manager"));
-
-router.put(
-  "/changePassword/:id",
-  changeUserPasswordValidator,
-  userController.changeUserPassword,
+router.patch(
+  "/:id/role",
+  authController.allowedTo("admin"),
+  updateUserRoleValidator,
+  userController.updateUserRole,
 );
+
+router.use(authController.allowedTo("admin", "manager"));
 
 router
   .route("/")

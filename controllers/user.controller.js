@@ -4,6 +4,7 @@ import asyncWrapper from "../middlewares/asyncWrapper.js";
 import appError from "../utils/appError.js";
 import httpStatusText from "../utils/httpStatusText.js";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import sharp from "sharp";
 import createToken from "../utils/createToken.js";
 import cloudinary from "../config/cloudinary.js";
@@ -38,7 +39,7 @@ const safeDestroy = async (publicId) => {
 // Image processing
 const resizeImage = asyncWrapper(async (req, res, next) => {
   if (req.file) {
-    const filename = `category-${crypto.randomUUID()}-${Date.now()}.jpeg`;
+    const filename = `user-${crypto.randomUUID()}-${Date.now()}.jpeg`;
     const processedBuffer = await sharp(req.file.buffer)
       .resize(600, 600, {
         fit: "cover",
@@ -53,10 +54,10 @@ const resizeImage = asyncWrapper(async (req, res, next) => {
       const base64Image = `data:image/jpeg;base64,${processedBuffer.toString("base64")}`;
 
       const result = await cloudinary.uploader.upload(base64Image, {
-        folder: "categories",
+        folder: "users",
       });
 
-      req.body.image = result.secure_url;
+      req.body.profileImg = result.secure_url;
     } catch (error) {
       return next(
         new appError("Image upload failed", 500, httpStatusText.FAIL),
@@ -67,17 +68,28 @@ const resizeImage = asyncWrapper(async (req, res, next) => {
   next();
 });
 
-const createUser = factoryHandler.createOne(userModel);
-
-const updateUser = asyncWrapper(async (req, res, next) => {
+const createUser = asyncWrapper(async (req, res, next) => {
   const allowedFields = [
     "name",
     "phone",
+    "profileImg",
     "slug",
     "email",
-    "profileImg",
-    "active",
+    "password",
   ];
+  const bodyContent = {};
+  allowedFields.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      bodyContent[field] = req.body[field];
+    }
+  });
+
+  const user = await userModel.create(bodyContent);
+  res.status(200).json({ data: user });
+});
+
+const updateUser = asyncWrapper(async (req, res, next) => {
+  const allowedFields = ["name", "phone", "slug", "profileImg", "active"];
   const updateData = {};
   allowedFields.forEach((field) => {
     if (req.body[field] !== undefined) {
@@ -89,10 +101,6 @@ const updateUser = asyncWrapper(async (req, res, next) => {
   if (!oldUser) {
     const error = new appError("Document not found", 404, httpStatusText.FAIL);
     return next(error);
-  }
-
-  if (updateData.profileImg && oldUser.profileImg) {
-    await safeDestroy(extractPublicId(oldUser.profileImg));
   }
 
   const document = await userModel.findByIdAndUpdate(
@@ -109,31 +117,34 @@ const updateUser = asyncWrapper(async (req, res, next) => {
     return next(error);
   }
 
+  if (updateData.profileImg && oldUser.profileImg) {
+    await safeDestroy(extractPublicId(oldUser.profileImg));
+  }
+
   return res.status(200).json({
     status: httpStatusText.SUCCESS,
     data: { document },
   });
 });
 
-const changeUserPassword = asyncWrapper(async (req, res, next) => {
-  const hashedPassword = await bcrypt.hash(req.body.newPassword, 12);
-  const document = await userModel.findByIdAndUpdate(
+const updateUserRole = asyncWrapper(async (req, res, next) => {
+  const user = await userModel.findByIdAndUpdate(
     req.params.id,
-    { password: hashedPassword, passwordChangedAt: Date.now() },
+    { role: req.body.role },
     {
       returnDocument: "after",
       runValidators: true,
     },
   );
 
-  if (!document) {
-    const error = new appError("Document not found", 404, httpStatusText.FAIL);
+  if (!user) {
+    const error = new appError("User not found", 404, httpStatusText.FAIL);
     return next(error);
   }
 
   res.status(200).json({
     status: httpStatusText.SUCCESS,
-    data: { document },
+    data: { user },
   });
 });
 
@@ -150,7 +161,7 @@ const deactivateUser = asyncWrapper(async (req, res, next) => {
     const error = new appError("Document not found", 404, httpStatusText.FAIL);
     return next(error);
   }
-  res.status(204).json();
+  res.status(204).send();
 });
 
 const getLoggedUserData = asyncWrapper(async (req, res, next) => {
@@ -160,15 +171,22 @@ const getLoggedUserData = asyncWrapper(async (req, res, next) => {
 
 const updateLoggedUserPassword = asyncWrapper(async (req, res, next) => {
   const hashedPassword = await bcrypt.hash(req.body.newPassword, 12);
-  const user = await userModel.findByIdAndUpdate(
-    req.user._id,
-    { password: hashedPassword, passwordChangedAt: Date.now() },
-    {
-      returnDocument: "after",
-      runValidators: true,
-    },
-  );
-  req.params.id = req.user._id;
+  const user = await userModel
+    .findByIdAndUpdate(
+      req.user._id,
+      { password: hashedPassword, passwordChangedAt: Date.now() },
+      {
+        returnDocument: "after",
+        runValidators: true,
+      },
+    )
+    .select("+password");
+
+  if (!user) {
+    const error = new appError("User not found", 404, httpStatusText.FAIL);
+    return next(error);
+  }
+
   const token = createToken(user._id);
   res.status(200).json({
     status: httpStatusText.SUCCESS,
@@ -178,7 +196,7 @@ const updateLoggedUserPassword = asyncWrapper(async (req, res, next) => {
 });
 
 const updateLoggedUserData = asyncWrapper(async (req, res, next) => {
-  const allowedFields = ["name", "phone", "email", "profileImg"];
+  const allowedFields = ["name", "phone", "profileImg", "slug"];
   const updateData = {};
   allowedFields.forEach((field) => {
     if (req.body[field] !== undefined) {
@@ -206,7 +224,11 @@ const updateLoggedUserData = asyncWrapper(async (req, res, next) => {
       runValidators: true,
     },
   );
-  res.status(200).json({ data: updatedUser });
+
+  res.status(200).json({
+    status: httpStatusText.SUCCESS,
+    data: { document: updatedUser },
+  });
 });
 
 const deleteLoggedUser = asyncWrapper(async (req, res, next) => {
@@ -221,7 +243,7 @@ export {
   getUser,
   updateUser,
   createUser,
-  changeUserPassword,
+  updateUserRole,
   deactivateUser,
   getLoggedUserData,
   updateLoggedUserPassword,

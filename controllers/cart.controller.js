@@ -129,6 +129,9 @@ const clearCart = asyncWrapper(async (req, res, next) => {
 });
 
 const updateCartItemQuantity = asyncWrapper(async (req, res, next) => {
+  if (!quantity || quantity < 1) {
+    return next(new appError("Invalid quantity", 400, httpStatusText.FAIL));
+  }
   const { quantity } = req.body;
   const cart = await cartModel.findOne({ user: req.user._id });
   if (!cart) {

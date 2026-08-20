@@ -13,7 +13,6 @@ const cartSchema = new mongoose.Schema(
           default: 1,
         },
         color: String,
-        price: Number,
       },
     ],
     user: {

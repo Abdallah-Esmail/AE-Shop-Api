@@ -33,12 +33,6 @@ const userSchema = new mongoose.Schema(
     passwordResetCode: String,
     passwordResetExpires: Date,
     passwordResetVerified: Boolean,
-    wishlist: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: "Product",
-      },
-    ],
     role: {
       type: String,
       enum: ["user", "manager", "admin"],

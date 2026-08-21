@@ -11,7 +11,7 @@ const addProductToWishlist = asyncWrapper(async (req, res, next) => {
       },
       { new: true, upsert: true, runValidators: true },
     )
-    .populate("wishlistItems", "name price imageCover ratingsAverage");
+    .populate("wishlistItems", "title price imageCover ratingsAverage");
 
   res.status(200).json({
     status: httpStatusText.SUCCESS,
@@ -24,7 +24,7 @@ const addProductToWishlist = asyncWrapper(async (req, res, next) => {
 const removeProductFromWishlist = asyncWrapper(async (req, res, next) => {
   const wishlist = await wishlistModel
     .findOne({ user: req.user._id })
-    .populate("wishlistItems", "name price imageCover ratingsAverage");
+    .populate("wishlistItems", "title price imageCover ratingsAverage");
 
   if (
     !wishlist ||
@@ -44,7 +44,7 @@ const removeProductFromWishlist = asyncWrapper(async (req, res, next) => {
   await wishlist.save();
   await wishlist.populate(
     "wishlistItems",
-    "name price imageCover ratingsAverage",
+    "title price imageCover ratingsAverage",
   );
 
   res.status(200).json({
@@ -58,7 +58,7 @@ const removeProductFromWishlist = asyncWrapper(async (req, res, next) => {
 const getLoggedUserWishlist = asyncWrapper(async (req, res, next) => {
   const wishlist = await wishlistModel
     .findOne({ user: req.user._id })
-    .populate("wishlistItems", "name price imageCover ratingsAverage");
+    .populate("wishlistItems", "title price imageCover ratingsAverage");
   if (!wishlist) {
     return res.status(200).json({
       status: httpStatusText.SUCCESS,

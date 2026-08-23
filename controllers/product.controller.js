@@ -1,5 +1,6 @@
 import productModel from "../models/product.model.js";
 import cartModel from "../models/cart.model.js";
+import categoryModel from "../models/category.model.js";
 import factoryHandler from "./handlersFactory.controller.js";
 import asyncWrapper from "../middlewares/asyncWrapper.js";
 import { uploadMixOfImages } from "../middlewares/uploadImage.js";
@@ -80,7 +81,29 @@ const safeDestroy = async (publicId) => {
   }
 };
 
-const getProducts = factoryHandler.getAll(productModel, "Product");
+const getProducts = asyncWrapper(async (req, res, next) => {
+  const filter = {};
+
+  if (req.query.category) {
+    const category = await categoryModel.findOne({ slug: req.query.category });
+
+    if (!category) {
+      return next(new appError("Category not found", 404, httpStatusText.FAIL));
+    }
+
+    filter.category = category._id;
+  }
+
+  const document = await productModel
+    .find(filter)
+    .populate("category", "name slug");
+
+  res.status(200).json({
+    status: httpStatusText.SUCCESS,
+    results: document.length,
+    data: document,
+  });
+});
 const getProduct = factoryHandler.getOne(productModel);
 const createProduct = factoryHandler.createOne(productModel);
 const updateProduct = asyncWrapper(async (req, res, next) => {

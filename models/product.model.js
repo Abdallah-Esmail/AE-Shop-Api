@@ -79,8 +79,8 @@ const productSchema = new mongoose.Schema(
 );
 
 productSchema.pre(/^find/, function () {
-  this.populate("category", "name _id");
-  this.populate("brand", "name _id");
+  this.populate("category", "name _id slug");
+  this.populate("brand", "name _id slug");
 });
 
 // delete reviews

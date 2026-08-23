@@ -45,13 +45,13 @@ const addToCart = asyncWrapper(async (req, res, next) => {
   }
   if (product.colors.length) {
     if (!color) {
-      const error = new appError("Color is required", 404, httpStatusText.FAIL);
+      const error = new appError("Color is required", 400, httpStatusText.FAIL);
       return next(error);
     }
     if (!product.colors.includes(color)) {
       const error = new appError(
         "this color is not available",
-        404,
+        400,
         httpStatusText.FAIL,
       );
       return next(error);
@@ -85,8 +85,8 @@ const addToCart = asyncWrapper(async (req, res, next) => {
       });
     }
   }
-  // Calculate total cart price
   await cart.save();
+  // Calculate total cart price
   const totalCartPrice = calcTotalCartPrice(cart);
   res.status(200).json({
     status: "success",
@@ -109,7 +109,7 @@ const removeSpecificCartItem = asyncWrapper(async (req, res, next) => {
   if (!cart) {
     const error = new appError(
       "No cart items to remove",
-      404,
+      400,
       httpStatusText.FAIL,
     );
     return next(error);
@@ -129,15 +129,15 @@ const clearCart = asyncWrapper(async (req, res, next) => {
 });
 
 const updateCartItemQuantity = asyncWrapper(async (req, res, next) => {
+  const { quantity } = req.body;
   if (!quantity || quantity < 1) {
     return next(new appError("Invalid quantity", 400, httpStatusText.FAIL));
   }
-  const { quantity } = req.body;
   const cart = await cartModel.findOne({ user: req.user._id });
   if (!cart) {
     const error = new appError(
       "there is no cart item",
-      404,
+      400,
       httpStatusText.FAIL,
     );
     return next(error);
@@ -150,7 +150,7 @@ const updateCartItemQuantity = asyncWrapper(async (req, res, next) => {
     cart.cartItems[itemIndex].quantity = quantity;
   } else {
     return next(
-      new appError("Item not found in your cart", 404, httpStatusText.FAIL),
+      new appError("Item not found in your cart", 400, httpStatusText.FAIL),
     );
   }
 

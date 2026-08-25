@@ -8,6 +8,7 @@ import cloudinary from "../config/cloudinary.js";
 import sharp from "sharp";
 import httpStatusText from "../utils/httpStatusText.js";
 import appError from "../utils/appError.js";
+import ApiFeatures from "../utils/apiFeatures.js";
 // Upload mix of images (imageCover + images)
 const uploadProductImages = uploadMixOfImages([
   { name: "imageCover", maxCount: 1 },
@@ -80,7 +81,6 @@ const safeDestroy = async (publicId) => {
     );
   }
 };
-
 const getProducts = asyncWrapper(async (req, res, next) => {
   const filter = {};
 
@@ -94,16 +94,27 @@ const getProducts = asyncWrapper(async (req, res, next) => {
     filter.category = category._id;
   }
 
-  const document = await productModel
-    .find(filter)
-    .populate("category", "name slug");
+  const documentsCount = await productModel.countDocuments(filter);
+
+  const apiFeatures = new ApiFeatures(productModel.find(filter), req.query)
+    .pagination(documentsCount)
+    .filter()
+    .sort()
+    .search("Product")
+    .limitFields();
+
+  const documents = await apiFeatures.mongooseQuery.populate(
+    "category",
+    "name slug",
+  );
 
   res.status(200).json({
     status: httpStatusText.SUCCESS,
-    results: document.length,
-    data: document,
+    results: documents.length,
+    data: documents,
   });
 });
+
 const getProduct = factoryHandler.getOne(productModel);
 const createProduct = factoryHandler.createOne(productModel);
 const updateProduct = asyncWrapper(async (req, res, next) => {

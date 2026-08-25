@@ -9,6 +9,14 @@ import productModel from "../models/product.model.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET);
 
+const calcTotalCartPrice = (cart) => {
+  let totalPrice = 0;
+  cart.cartItems.forEach((item) => {
+    totalPrice = totalPrice + item.quantity * item.price;
+  });
+  return Math.round(totalPrice * 100) / 100;
+};
+
 const filterOrdersForLoggedUser = asyncWrapper(async (req, res, next) => {
   if (req.user.role === "user") req.filterObj = { user: req.user._id };
   next();
@@ -43,8 +51,12 @@ const getSpecificOrder = asyncWrapper(async (req, res, next) => {
 const createCashOrder = asyncWrapper(async (req, res, next) => {
   // Find logged user cart
   const cart = await cartModel.findById(req.params.cartId);
-  if (!cart) {
-    const error = new appError("Cart not found", 404, httpStatusText.FAIL);
+  if (!cart || !cart.cartItems.length) {
+    const error = new appError(
+      "There is no product here",
+      404,
+      httpStatusText.FAIL,
+    );
     return next(error);
   }
 
@@ -68,13 +80,14 @@ const createCashOrder = asyncWrapper(async (req, res, next) => {
   }
 
   // Get total price
+  const totalCartPrice = calcTotalCartPrice(cart);
   const taxPrice =
-    Math.round(cart.totalCartPrice * +process.env.TAX_PERCENT * 100) / 100;
+    Math.round(totalCartPrice * +process.env.TAX_PERCENT * 100) / 100;
 
   const city = req.body?.shippingAddress?.city?.toLowerCase() || "";
   const shippingPrice = city === "cairo" ? 30 : +process.env.SHIPPING_FEE || 0;
 
-  let totalOrderPrice = cart.totalCartPrice + taxPrice + shippingPrice;
+  let totalOrderPrice = totalCartPrice + taxPrice + shippingPrice;
   totalOrderPrice = Math.round(totalOrderPrice * 100) / 100;
 
   // Create order
@@ -206,13 +219,9 @@ const modifyCardOrder = async (event) => {
 
 const checkoutSession = asyncWrapper(async (req, res, next) => {
   const cart = await cartModel.findById(req.params.cartId);
-  if (!cart) {
+  if (!cart || !cart.cartItems.length) {
     return next(
-      new appError(
-        "There is no such cart with this id",
-        404,
-        httpStatusText.FAIL,
-      ),
+      new appError("There is no product here", 404, httpStatusText.FAIL),
     );
   }
   // Confirm from quantity
@@ -234,12 +243,13 @@ const checkoutSession = asyncWrapper(async (req, res, next) => {
     }
   }
   // Get total price
+  const totalCartPrice = calcTotalCartPrice(cart);
   const taxPrice =
-    Math.round(cart.totalCartPrice * +process.env.TAX_PERCENT * 100) / 100;
+    Math.round(totalCartPrice * +process.env.TAX_PERCENT * 100) / 100;
   const city = req.body?.shippingAddress?.city?.toLowerCase() || "";
   const shippingPrice = city === "cairo" ? 30 : +process.env.SHIPPING_FEE || 0;
 
-  let totalOrderPrice = cart.totalCartPrice + taxPrice + shippingPrice;
+  let totalOrderPrice = totalCartPrice + taxPrice + shippingPrice;
   totalOrderPrice = Math.round(totalOrderPrice * 100) / 100;
 
   // Create order

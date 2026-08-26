@@ -246,7 +246,7 @@ const checkoutSession = asyncWrapper(async (req, res, next) => {
   const totalCartPrice = calcTotalCartPrice(cart);
   const taxPrice =
     Math.round(totalCartPrice * +process.env.TAX_PERCENT * 100) / 100;
-  const city = req.body?.shippingAddress?.city?.toLowerCase() || "";
+  const city = req.query?.city?.toLowerCase() || "";
   const shippingPrice = city === "cairo" ? 30 : +process.env.SHIPPING_FEE || 0;
 
   let totalOrderPrice = totalCartPrice + taxPrice + shippingPrice;
@@ -256,7 +256,11 @@ const checkoutSession = asyncWrapper(async (req, res, next) => {
   const order = await orderModel.create({
     user: req.user._id,
     cartItems: cart.cartItems,
-    shippingAddress: req.body.shippingAddress,
+    shippingAddress: {
+      phone: req.query.phone,
+      city: req.query.city,
+      details: req.query.details,
+    },
     taxPrice,
     shippingPrice,
     totalOrderPrice: totalOrderPrice,

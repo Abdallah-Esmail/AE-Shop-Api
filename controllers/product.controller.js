@@ -83,6 +83,7 @@ const safeDestroy = async (publicId) => {
 };
 const getProducts = asyncWrapper(async (req, res, next) => {
   const filter = {};
+  const queryForFeatures = { ...req.query };
 
   if (req.query.category) {
     const category = await categoryModel.findOne({ slug: req.query.category });
@@ -92,11 +93,15 @@ const getProducts = asyncWrapper(async (req, res, next) => {
     }
 
     filter.category = category._id;
+    delete queryForFeatures.category;
   }
 
   const documentsCount = await productModel.countDocuments(filter);
 
-  const apiFeatures = new ApiFeatures(productModel.find(filter), req.query)
+  const apiFeatures = new ApiFeatures(
+    productModel.find(filter),
+    queryForFeatures,
+  )
     .pagination(documentsCount)
     .filter()
     .sort()

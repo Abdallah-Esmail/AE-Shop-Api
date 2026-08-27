@@ -28,7 +28,7 @@ dbConnection();
 // Cors
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://e-shop-zeta-two.vercel.app"],
+    origin: ["http://localhost:5173", "https://reda-pi.vercel.app"],
     credentials: true,
   }),
 );

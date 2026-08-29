@@ -125,6 +125,18 @@ const updateOrderStatus = asyncWrapper(async (req, res, next) => {
     );
   }
 
+  const previousStatus = order.status;
+
+  if (previousStatus === "delivered") {
+    return next(
+      new appError(
+        "Cannot edit order status that has already been delivered",
+        400,
+        httpStatusText.FAIL,
+      ),
+    );
+  }
+
   // update order status
   order.status = req.body.status;
 
@@ -133,6 +145,17 @@ const updateOrderStatus = asyncWrapper(async (req, res, next) => {
     order.isPaid = true;
     order.paidAt = Date.now();
     order.deliveredAt = Date.now();
+  }
+
+  // Handle cancelling
+  if (req.body.status === "cancelled" && previousStatus !== "cancelled") {
+    const bulkOptions = order.cartItems.map((item) => ({
+      updateOne: {
+        filter: { _id: item.product },
+        update: { $inc: { quantity: +item.quantity, sold: -item.quantity } },
+      },
+    }));
+    await productModel.bulkWrite(bulkOptions, {});
   }
 
   const updatedOrder = await order.save();

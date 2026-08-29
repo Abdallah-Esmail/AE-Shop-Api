@@ -54,8 +54,8 @@ const orderSchema = new mongoose.Schema(
     refundedAt: Date,
     status: {
       type: String,
-      enum: ["pending", "shipped", "delivered"],
-      default: "pending",
+      enum: ["processing", "shipped", "delivered", "cancelled"],
+      default: "processing",
     },
     deliveredAt: Date,
     sessionId: { type: String, unique: true, sparse: true },

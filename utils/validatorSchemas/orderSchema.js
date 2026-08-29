@@ -6,8 +6,8 @@ export const updateOrderStatusValidator = [
   body("status")
     .notEmpty()
     .withMessage("Order status is required")
-    .isIn(["pending", "shipped", "delivered"])
-    .withMessage("Status must be pending, shipped, or delivered"),
+    .isIn(["processing", "shipped", "delivered", "cancelled"])
+    .withMessage("Status must be processing, shipped, delivered or cancelled"),
   validatorMiddleware,
 ];
 

@@ -5,7 +5,8 @@ import sharp from "sharp";
 import appError from "../utils/appError.js";
 import cloudinary from "../config/cloudinary.js";
 import { uploadSingleImage } from "../middlewares/uploadImage.js";
-
+import crypto from "crypto";
+import httpStatusText from "../utils/httpStatusText.js";
 // Upload single image
 const uploadCategoryImage = uploadSingleImage("image");
 
@@ -14,7 +15,7 @@ const resizeImage = asyncWrapper(async (req, res, next) => {
   if (req.file) {
     const filename = `category-${crypto.randomUUID()}-${Date.now()}.jpeg`;
     const processedBuffer = await sharp(req.file.buffer)
-      .resize(600, 600, {
+      .resize(1300, 500, {
         fit: "cover",
         background: "#ffffff",
         withoutEnlargement: true,

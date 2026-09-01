@@ -28,7 +28,7 @@ dbConnection();
 // Cors
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://reda-pi.vercel.app"],
+    origin: ["https://ae-shop.vercel.app"],
     credentials: true,
   }),
 );

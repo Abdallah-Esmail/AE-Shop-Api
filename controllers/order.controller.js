@@ -201,7 +201,7 @@ const modifyCardOrder = async (event) => {
         await productModel.bulkWrite(bulkOption, {});
 
         // Delete cart
-        await cartModel.findOneAndDelete({ user: order.user });
+        await cartModel.findOneAndDelete({ user: order.user._id });
       }
       break;
     }

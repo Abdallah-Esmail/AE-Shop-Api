@@ -129,7 +129,14 @@ const updateProduct = asyncWrapper(async (req, res, next) => {
   if (!oldProduct) {
     return next(new appError("Document not found", 404, httpStatusText.FAIL));
   }
-
+  if (!req.body)
+    return next(
+      new appError(
+        "Request body is required and cannot be empty.",
+        400,
+        httpStatusText.FAIL,
+      ),
+    );
   let document;
   try {
     document = await productModel.findByIdAndUpdate(id, req.body, {

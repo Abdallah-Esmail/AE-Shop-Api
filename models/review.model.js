@@ -13,6 +13,11 @@ const reviewSchema = new mongoose.Schema(
       enum: [1, 2, 3, 4, 5],
       required: [true, "review ratings required"],
     },
+    review: {
+      type: String,
+      minlength: [6, "Too short review"],
+      maxlength: [300, "Too long review"],
+    },
     product: {
       type: mongoose.Schema.ObjectId,
       ref: "Product",

@@ -18,7 +18,6 @@ const getAllReviews = factoryHandler.getAll(reviewModel, "Review");
 const getReview = factoryHandler.getOne(reviewModel);
 const addReview = factoryHandler.createOne(reviewModel);
 const updateReview = factoryHandler.updateOne(reviewModel);
-const removeReview = factoryHandler.deleteOne(reviewModel);
 
 export {
   createFilterObj,
@@ -27,5 +26,4 @@ export {
   getReview,
   addReview,
   updateReview,
-  removeReview,
 };

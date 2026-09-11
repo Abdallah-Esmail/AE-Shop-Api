@@ -4,7 +4,6 @@ import {
   createReviewValidator,
   getReviewValidator,
   updateReviewValidator,
-  deleteReviewValidator,
 } from "../utils/validatorSchemas/reviewSchema.js";
 import * as reviewController from "../controllers/review.controller.js";
 import * as authController from "../controllers/auth.controller.js";
@@ -29,11 +28,6 @@ router
     authController.allowedTo("user"),
     updateReviewValidator,
     reviewController.updateReview,
-  )
-  .delete(
-    authController.allowedTo("user", "admin", "manager"),
-    deleteReviewValidator,
-    reviewController.removeReview,
   );
 
 export default router;

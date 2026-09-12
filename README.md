@@ -3,15 +3,14 @@
 [![Node.js](https://img.shields.io/badge/Node.js-18.x-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![Express.js](https://img.shields.io/badge/Express.js-4.x-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
-[![Postman](https://img.shields.io/badge/Postman-API_Docs-FF6C37?style=for-the-badge&logo=postman&logoColor=white)](https://documenter.getpostman.com/view/34709416/2sBYAvuptx)
+[![Swagger](https://img.shields.io/badge/Swagger-API%20Docs-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://app.swaggerhub.com/apis-docs/abdallah-687/ae-shop/1.0.0?view=uiDocs)
 
 A production-grade RESTful API backend powering the **AE-Shop** e-commerce platform. Built with **Node.js**, **Express.js**, and **MongoDB (Mongoose)**, utilizing standard MVC pattern architecture, JWT authentication, image processing, Stripe payments, and transactional emails.
 
 ---
 
 ## 📑 API Documentation & Live Links
-
-- 📖 **Interactive Postman Documentation:** [https://documenter.getpostman.com/view/34709416/2sBYAvuptx](https://documenter.getpostman.com/view/34709416/2sBYAvuptx)
+- 🦄 **Swagger API Docs:** https://app.swaggerhub.com/apis-docs/abdallah-687/ae-shop/1.0.0?view=uiDocs
 - 🌐 **Live Web Application:** [https://ae-shop.vercel.app/](https://ae-shop.vercel.app/)
 - 🐙 **GitHub Repository:** [abdallah-esmail/AE-Shop-Api](https://github.com/abdallah-esmail/AE-Shop-Api)
 

@@ -9,8 +9,8 @@ const createFilterObj = (req, res, next) => {
 };
 
 const addUserAndProduct = (req, res, next) => {
-  req.body.user = req.user._id;
-  req.body.product = req.params.id;
+  req.body.user = req.user._id 
+  req.body.product = req.params.productId;
   next();
 };
 

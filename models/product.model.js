@@ -83,11 +83,19 @@ productSchema.pre(/^find/, function () {
   this.populate("brand", "name _id slug");
 });
 
-// delete reviews
-// delete form cart
-// productSchema.pre(["findOneAndDelete", "deleteOne"], async function () {
-//   const productId = this.getQuery()._id;
-//   await productModel.deleteMany({ category: categoryId });
-// });
+// Delete reviews and the product from all carts on delete product
+productSchema.post("findOneAndDelete", async function (doc) {
+  if (!doc) return;
+
+  const Review = mongoose.model("Review");
+  const Cart = mongoose.model("Cart");
+
+  await Review.deleteMany({ product: doc._id });
+
+  await Cart.updateMany(
+    { "cartItems.product": doc._id },
+    { $pull: { cartItems: { product: doc._id } } },
+  );
+});
 
 export default mongoose.model("Product", productSchema);

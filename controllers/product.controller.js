@@ -1,5 +1,6 @@
 import productModel from "../models/product.model.js";
 import cartModel from "../models/cart.model.js";
+import reviewModel from "../models/review.model.js";
 import categoryModel from "../models/category.model.js";
 import factoryHandler from "./handlersFactory.controller.js";
 import asyncWrapper from "../middlewares/asyncWrapper.js";
@@ -114,8 +115,8 @@ const getProducts = asyncWrapper(async (req, res, next) => {
   );
 
   res.status(200).json({
-    status: httpStatusText.SUCCESS,
     results: documents.length,
+    paginationResult: apiFeatures.paginationResult,
     data: documents,
   });
 });
@@ -140,7 +141,7 @@ const updateProduct = asyncWrapper(async (req, res, next) => {
   let document;
   try {
     document = await productModel.findByIdAndUpdate(id, req.body, {
-      returnDocument: "after",
+      new: true,
       runValidators: true,
     });
   } catch (err) {
@@ -180,20 +181,21 @@ const deleteProduct = asyncWrapper(async (req, res, next) => {
 
   await productModel.findByIdAndDelete(id);
 
-  if (product.imageCover) {
-    await safeDestroy(extractPublicId(product.imageCover));
-  }
-
-  if (product.images?.length) {
-    await Promise.all(
-      product.images.map((url) => safeDestroy(extractPublicId(url))),
-    );
-  }
-
-  await cartModel.updateMany(
-    { "cartItems.product": id },
-    { $pull: { cartItems: { product: id } } },
-  );
+  await Promise.all([
+    product.imageCover
+      ? safeDestroy(extractPublicId(product.imageCover))
+      : Promise.resolve(),
+    product.images?.length
+      ? Promise.all(
+          product.images.map((url) => safeDestroy(extractPublicId(url))),
+        )
+      : Promise.resolve(),
+    reviewModel.deleteMany({ product: id }),
+    cartModel.updateMany(
+      { "cartItems.product": id },
+      { $pull: { cartItems: { product: id } } },
+    ),
+  ]);
 
   res.status(204).send();
 });

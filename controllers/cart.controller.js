@@ -59,6 +59,10 @@ const addToCart = asyncWrapper(async (req, res, next) => {
   }
   let cart = await cartModel.findOne({ user: req.user._id });
   if (!cart) {
+    if (+product.quantity < 1) {
+      const error = new appError("Out of stock", 400, httpStatusText.FAIL);
+      return next(error);
+    }
     cart = await cartModel.create({
       cartItems: [
         {
@@ -74,10 +78,21 @@ const addToCart = asyncWrapper(async (req, res, next) => {
       (item) => item.product.toString() === itemId && item.color === color,
     );
     if (productIndex > -1) {
+      if (
+        +product.quantity <
+        1 + (+cart.cartItems[productIndex].quantity || 0)
+      ) {
+        const error = new appError("Out of stock", 400, httpStatusText.FAIL);
+        return next(error);
+      }
       cart.cartItems[productIndex].quantity++;
       cart.cartItems[productIndex].price =
         product.priceAfterDiscount || product.price;
     } else {
+      if (+product.quantity < 1) {
+        const error = new appError("Out of stock", 400, httpStatusText.FAIL);
+        return next(error);
+      }
       cart.cartItems.push({
         product: itemId,
         color: color,
@@ -124,7 +139,7 @@ const removeSpecificCartItem = asyncWrapper(async (req, res, next) => {
 });
 
 const clearCart = asyncWrapper(async (req, res, next) => {
-  const cart = await cartModel.findOneAndDelete({ user: req.user._id });
+  await cartModel.findOneAndDelete({ user: req.user._id });
   res.status(204).send();
 });
 
@@ -133,6 +148,17 @@ const updateCartItemQuantity = asyncWrapper(async (req, res, next) => {
   if (!quantity || quantity < 1) {
     return next(new appError("Invalid quantity", 400, httpStatusText.FAIL));
   }
+
+  const product = await productModel.findById(req.params.itemId);
+  if (!product) {
+    const error = new appError("document not found", 404, httpStatusText.FAIL);
+    return next(error);
+  }
+  if (product.quantity < quantity) {
+    const error = new appError("Out of stock", 400, httpStatusText.FAIL);
+    return next(error);
+  }
+
   const cart = await cartModel.findOne({ user: req.user._id });
   if (!cart) {
     const error = new appError(

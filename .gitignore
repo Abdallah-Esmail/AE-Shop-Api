@@ -34,3 +34,9 @@ Thumbs.db
 
 # Personal files
 notes.txt
+
+# TypeScript
+*.tsbuildinfo
+
+# Tests
+coverage/

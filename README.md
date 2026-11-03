@@ -1,64 +1,73 @@
 # 🛠️ AE-Shop-Api — RESTful API Backend Service
 
-[![Node.js](https://img.shields.io/badge/Node.js-18.x-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
-[![Express.js](https://img.shields.io/badge/Express.js-4.x-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-24.x-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Express.js](https://img.shields.io/badge/Express.js-5.x-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 [![Swagger](https://img.shields.io/badge/Swagger-API%20Docs-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://app.swaggerhub.com/apis-docs/abdallah-687/ae-shop/1.0.0?view=uiDocs)
 
-A production-grade RESTful API backend powering the **AE-Shop** e-commerce platform. Built with **Node.js**, **Express.js**, and **MongoDB (Mongoose)**, utilizing standard MVC pattern architecture, JWT authentication, image processing, Stripe payments, and transactional emails.
+A production-oriented RESTful API backend powering the **AE-Shop** e-commerce platform. Built with **TypeScript**, **Node.js**, **Express 5**, and **MongoDB (Mongoose)**, following an MVC architecture with JWT authentication, image processing, Stripe payments, and transactional emails.
 
 ---
 
-## 📑 API Documentation & Live Links
+## 📑 Documentation & Live Links
+
+- 🧪 **Postman Documentation:** https://documenter.getpostman.com/view/34709416/2sBYAvuptx
 - 🦄 **Swagger API Docs:** https://app.swaggerhub.com/apis-docs/abdallah-687/ae-shop/1.0.0?view=uiDocs
-- 🌐 **Live Web Application:** [https://ae-shop.vercel.app/](https://ae-shop.vercel.app/)
-- 🐙 **GitHub Repository:** [abdallah-esmail/AE-Shop-Api](https://github.com/abdallah-esmail/AE-Shop-Api)
+- 🌐 **Live Web Application:** https://ae-shop.vercel.app/
+- 🔌 **API Base URL:** `https://ae-shop-api.vercel.app/api/v1`
+- 🐙 **GitHub Repository:** https://github.com/abdallah-esmail/AE-Shop-Api
 
 ---
 
 ## ✨ Key Features
 
 - 🔐 **Authentication & Authorization:** JWT token generation and verification, password hashing with `bcryptjs`, password reset flows, and role-based permissions.
-- 📦 **E-Commerce Endpoints:** Advanced filtering, sorting, pagination, searching, and field limiting for products and categories.
-- 🛒 **Cart & Wishlist Engine:** Cart calculation, coupon application, shipping fee computation, and tax estimation (`TAX_PERCENT=0.14`).
-- 💳 **Payment & Checkout:** Integrated Stripe payment processing with Webhook validation.
-- 🖼️ **Media Processing & Storage:** Multi-part file handling (`Multer`), image optimization (`Sharp`), and cloud hosting (`Cloudinary`).
-- 📧 **Email Services:** Transactional email delivery via `Nodemailer`.
+- 📦 **E-Commerce Endpoints:** Filtering, sorting, pagination, searching, and field limiting for products and categories.
+- 🛒 **Cart & Wishlist:** Cart calculation, coupon application, shipping fee computation, and tax estimation.
+- 💳 **Payments & Checkout:** Stripe Checkout with signed webhook verification, plus cash-on-delivery orders.
+- 🖼️ **Media Processing:** Multi-part uploads (`Multer`), image optimization (`Sharp`), and cloud hosting (`Cloudinary`).
+- 📧 **Email Services:** Transactional emails via `Nodemailer`.
+- 🧱 **Type Safety:** Strict TypeScript (`strict`, `exactOptionalPropertyTypes`) with typed models, request bodies, and Express request augmentation.
 
 ---
 
-## 🛠️ Tech Stack & Dependencies
+## 🛠️ Tech Stack
 
-- **Runtime:** Node.js
-- **Framework:** Express.js
-- **Database & ORM:** MongoDB & Mongoose
-- **Authentication:** JSON Web Tokens (`jsonwebtoken`) & `bcryptjs`
+- **Language:** TypeScript
+- **Runtime:** Node.js 24
+- **Framework:** Express 5
+- **Database & ODM:** MongoDB & Mongoose
+- **Authentication:** `jsonwebtoken` & `bcryptjs`
 - **Validation:** `express-validator`
 - **Media & Cloud:** Multer, Sharp, Cloudinary
 - **Payments:** Stripe SDK
 - **Mail:** Nodemailer
+- **Dev tooling:** `tsx` (dev runner), `tsc` (build & type-check), ESLint
 
 ---
 
-## 📁 Project Structure (MVC Architecture)
+## 📁 Project Structure
 
 ```text
 AE-Shop-Api/
-├── config/             # Database connection setup & configuration files
-├── controllers/        # Express request handlers & core business logic
-├── middlewares/        # Auth checks, error handling, input validation
-├── models/             # Mongoose schemas (User, Product, Category, Cart, Order)
-├── node_modules/
-├── routes/             # API route definitions
-├── uploads/            # Local temporary file uploads directory
-├── utils/              # Helper utilities (API Features, Handlers, Token generators)
-├── .env                # Environment configuration file
-├── .eslintrc.json      # Code quality & ESLint rules
+├── src/
+│   ├── config/          # config.ts (env), database.ts (Mongo), cloudinary.ts
+│   ├── controllers/     # Request handlers & business logic
+│   ├── middlewares/     # Auth, error handling, validation, uploads
+│   ├── models/          # Mongoose schemas
+│   ├── routes/          # API route definitions
+│   ├── types/           # Shared types & Express request augmentation
+│   ├── utils/           # Helpers (ApiFeatures, appError, ...)
+│   └── index.ts         # Application entry point
+├── dist/                # Compiled output (generated, git-ignored)
+├── .env.example         # Template for environment variables
 ├── .gitignore
-├── index.js            # Main application entry point & server setup
-├── notes.txt           # Developer documentation & project notes
+├── eslint.config.js
+├── package.json
 ├── package-lock.json
-└── package.json
+├── README.md
+└── tsconfig.json
 ```
 
 ---
@@ -67,10 +76,10 @@ AE-Shop-Api/
 
 ### Prerequisites
 
-- **Node.js:** v18.x or higher
-- **MongoDB:** Local MongoDB instance or MongoDB Atlas URI
+- **Node.js:** v24.x
+- **MongoDB:** Local instance or MongoDB Atlas URI
 
-### Installation & Setup Instructions
+### Installation
 
 1. **Clone the repository:**
 
@@ -85,70 +94,95 @@ AE-Shop-Api/
    npm install
    ```
 
-3. **Configure Environment Variables:**
-   Create a `.env` file in the root directory matching the following variables:
+3. **Configure environment variables:**
+   Copy `.env.example` to `.env` and fill in your values:
 
    ```env
    PORT=5000
    NODE_ENV=development
 
-   # Database Configuration
-   DB_USER=your_db_user
-   DB_PASSWORD=your_db_password
-   DB_NAME=your_db_name
+   # Database
    DB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/ae-shop
 
-   # Cloudinary Media Configuration
+   # Cloudinary
    CLOUD_NAME=your_cloud_name
    API_KEY=your_cloudinary_api_key
    API_SECRET=your_cloudinary_api_secret
 
-   # JWT Configuration
+   # JWT
    JWT_SECRET_KEY=your_super_secret_jwt_key
    JWT_EXPIRE_TIME=90d
 
-   # Nodemailer SMTP Configuration
+   # Nodemailer (SMTP)
    EMAIL_HOST=smtp.mailtrap.io
    EMAIL_PORT=2525
    EMAIL_USER=your_email_username
    EMAIL_PASS=your_password
 
-   # Stripe Payment Configuration
+   # Stripe
    STRIPE_SECRET=your_stripe_secret_key
    STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 
-   # Store Tax & Shipping Settings
+   # Store settings
    SHIPPING_FEE=60
    TAX_PERCENT=0.14
    ```
 
-4. **Start the API Server:**
+   > Never commit your real `.env` file. Only `.env.example` should be tracked.
+
+4. **Run the server:**
 
    ```bash
-   # Development mode
+   # Development (hot reload via tsx)
    npm run start:dev
 
-   # Production mode
-   npm run start:prod
+   # Type-check without emitting files
+   npm run typecheck
+
+   # Build to ./dist
+   npm run build
+
+   # Run the compiled build (env vars from the host)
+   npm start
+
+   # Run the compiled build locally with .env
+   npm run start:local
    ```
 
-   The backend server will run at `http://localhost:5000`.
+   The server runs at `http://localhost:5000`.
 
 ---
 
-## 🧪 API Testing & Documentation
+## 📜 Available Scripts
 
-Explore all available routes, request payloads, response schemas, and authentication headers:
+| Script                | Description                                    |
+| --------------------- | ---------------------------------------------- |
+| `npm run start:dev`   | Start in watch mode with `tsx` (no type-check) |
+| `npm run typecheck`   | Run the TypeScript compiler without emitting   |
+| `npm run build`       | Compile TypeScript to `dist/`                  |
+| `npm start`           | Run the compiled app (`dist/index.js`)         |
+| `npm run start:local` | Run the compiled app and load `.env`           |
 
-👉 **[Open Published Postman Documentation](https://documenter.getpostman.com/view/34709416/2sBYAvuptx)**
+---
+
+## 💳 Stripe Webhook
+
+The webhook endpoint requires the **raw request body** to verify Stripe's signature, so it must be registered **before** `express.json()`. Set the endpoint URL and signing secret (`STRIPE_WEBHOOK_SECRET`) in the Stripe Dashboard. For local testing, use the Stripe CLI to forward events.
+
+---
+
+## 🧪 API Documentation
+
+Explore all routes, request payloads, response schemas, and authentication headers:
+
+👉 **[Postman Documentation](https://documenter.getpostman.com/view/34709416/2sBYAvuptx)** · **[Swagger](https://app.swaggerhub.com/apis-docs/abdallah-687/ae-shop/1.0.0?view=uiDocs)**
 
 ---
 
 ## 👨‍💻 Author
 
-**Abdallah Ismail** — Backend / Full-Stack Developer
+**Abdallah Esmail** — Backend / Full-Stack Developer
 
 - 🌐 Live App: [ae-shop.vercel.app](https://ae-shop.vercel.app/)
 - 💼 LinkedIn: [abdallah-esmail](https://www.linkedin.com/in/abdallah-esmail)
 - 🐙 GitHub: [@abdallah-esmail](https://github.com/abdallah-esmail)
-- 📑 API Docs: [Postman Collection](https://documenter.getpostman.com/view/34709416/2sBYAvuptx)

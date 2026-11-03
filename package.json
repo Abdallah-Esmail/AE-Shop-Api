@@ -5,12 +5,27 @@
   "license": "ISC",
   "author": "",
   "type": "module",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "private": true,
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
-    "start:dev": "nodemon -r dotenv/config index.js",
-    "start:prod": "set NODE_ENV=development && node -r dotenv/config index.js"
+    "start:dev": "tsx watch src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "start:local": "node --env-file=.env dist/index.js"
   },
   "dependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/multer": "^2.3.0",
+    "@types/node": "^26.6.6",
+    "@types/nodemailer": "^8.0.2",
+    "@types/qs": "^6.15.1",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^1.41.3",
     "colors": "^1.4.0",
@@ -24,19 +39,22 @@
     "multer": "^2.2.0",
     "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^8.0.7",
-    "nodemon": "^3.1.14",
     "qs": "^6.15.1",
     "sharp": "^0.35.3",
     "slugify": "^1.6.9",
-    "stripe": "^22.1.1"
+    "stripe": "^22.1.1",
+    "typescript": "^7.0.2"
   },
   "devDependencies": {
+    "@eslint/js": "^8.57.1",
     "eslint": "^8.57.1",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^5.5.5"
+    "eslint-plugin-prettier": "^5.5.5",
+    "globals": "^17.12.0",
+    "tsx": "^4.23.15"
   }
 }
